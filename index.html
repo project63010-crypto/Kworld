@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Карточки слов — проверка знаний</title>
+  <style>
+    /* ---------- Переменные ---------- */
+    :root {
+      --bg: #FFFFFF;
+      --accent: #333333;
+      --muted: #666666;
+      --green: #4CAF50;
+      --green-dark: #3d8b40;
+      --border: #eaeaea;
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, .05);
+      --shadow-md: 0 6px 20px rgba(0, 0, 0, .08);
+      --radius: 12px;
+      --gap: 24px;
+    }
+
+    /* ---------- Сброс ---------- */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--accent);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ---------- Хедер ---------- */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, .95);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-inner {
+      max-width: 1024px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: .2px;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .logo-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: var(--green);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-size: 15px;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+      transition: transform .3s ease;
+    }
+
+    .logo:hover .logo-mark {
+      transform: rotate(-6deg) scale(1.05);
+    }
+
+    .main-nav {
+      display: flex;
+      gap: 8px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .main-nav a {
+      display: inline-block;
+      padding: 7px 14px;
+      border-radius: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 15px;
+      transition: color .25s ease, background .25s ease;
+    }
+
+    .main-nav a:hover {
+      color: var(--accent);
+      background: #f5f5f5;
+    }
+
+    .main-nav a.active {
+      color: var(--green-dark);
+      background: #f0f8f0;
+      font-weight: 600;
+    }
+
+    /* ---------- Страницы (вкладки) ---------- */
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+      animation: fadeUp .35s ease both;
+    }
+
+    /* ---------- Основной контент ---------- */
+    main {
+      max-width: 1024px;
+      margin: 0 auto;
+      padding: var(--gap) 24px 40px;
+    }
+
+    h1 {
+      font-size: clamp(24px, 4vw, 34px);
+      font-weight: 700;
+      text-align: center;
+      margin: 8px 0 4px;
+      letter-spacing: -.4px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin: 0 0 32px;
+      font-size: 15px;
+    }
+
+    section {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: var(--gap);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow .3s ease, transform .3s ease;
+    }
+
+    section:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    section h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    section h2::before {
+      content: "";
+      width: 4px;
+      height: 18px;
+      border-radius: 2px;
+      background: var(--green);
+    }
+
+    /* ---------- Формы и элементы ---------- */
+    input,
+    select,
+    button {
+      font-family: inherit;
+      font-size: 15px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid #dcdcdc;
+      background: #fff;
+      color: var(--accent);
+      transition: border-color .25s ease, box-shadow .25s ease, background .25s ease;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(76, 175, 80, .15);
+    }
+
+    input[type="text"] {
+      min-width: 0;
+    }
+
+    button {
+      background: var(--green);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      box-shadow: var(--shadow-sm);
+      transition: background .25s ease, transform .12s ease, box-shadow .25s ease;
+    }
+
+    button:hover {
+      background: var(--green-dark);
+      box-shadow: var(--shadow-md);
+    }
+
+    button:active {
+      transform: translateY(1px) scale(.98);
+      box-shadow: none;
+    }
+
+    /* ---------- Строка добавления ---------- */
+    .add-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .add-row input {
+      flex: 1 1 180px;
+    }
+
+    /* ---------- Список карточек ---------- */
+    #cardsList {
+      margin-top: 18px;
+    }
+
+    .card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #fafafa;
+      border: 1px solid transparent;
+      margin-bottom: 8px;
+      transition: background .25s ease, border-color .25s ease, transform .2s ease;
+    }
+
+    .card:hover {
+      background: #f3f9f3;
+      border-color: rgba(76, 175, 80, .3);
+      transform: translateX(3px);
+    }
+
+    .card b {
+      color: var(--accent);
+      margin-right: 6px;
+    }
+
+    .card span {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .delete {
+      background: #f4f4f4;
+      color: var(--muted);
+      padding: 5px 10px;
+      font-size: 13px;
+      box-shadow: none;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
+
+    .delete:hover {
+      background: #d9534f;
+      color: #fff;
+    }
+
+    /* ---------- Панель настроек теста ---------- */
+    .quiz-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .quiz-controls label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .quiz-controls input[type="number"] {
+      width: 70px;
+    }
+
+    /* Кнопка "Закончить тест" */
+    #finishQuizBtn {
+      background: #d9534f;
+      margin-top: 10px;
+    }
+
+    #finishQuizBtn:hover {
+      background: #c9302c;
+    }
+
+    /* ---------- Задания ---------- */
+    .q {
+      padding: 16px;
+      margin-bottom: 14px;
+      border-radius: 10px;
+      background: #fafafa;
+      border: 1px solid var(--border);
+      transition: border-color .25s ease, background .25s ease;
+      animation: fadeUp .4s ease both;
+    }
+
+    .q:hover {
+      border-color: #d6d6d6;
+    }
+
+    .q>b {
+      display: block;
+      margin-bottom: 10px;
+      font-size: 17px;
+    }
+
+    .opt {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 4px 14px 4px 0;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: border-color .2s ease, background .2s ease;
+    }
+
+    .opt:hover {
+      border-color: var(--green);
+      background: #f3f9f3;
+    }
+
+    .opt input {
+      accent-color: var(--green);
+    }
+
+    .fb {
+      font-weight: 600;
+      margin-left: 6px;
+    }
+
+    .correct {
+      color: var(--green);
+    }
+
+    .wrong {
+      color: #d9534f;
+    }
+
+    /* ---------- Таблица сопоставления ---------- */
+    table.match {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+    }
+
+    table.match td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    table.match tr:last-child td {
+      border-bottom: none;
+    }
+
+    table.match select {
+      width: 100%;
+      max-width: 260px;
+    }
+
+    /* ---------- Результат ---------- */
+    #result {
+      font-size: 17px;
+      font-weight: 700;
+      margin-top: 16px;
+      padding: 14px 18px;
+      border-radius: 10px;
+      background: #f3f9f3;
+      color: var(--green-dark);
+      text-align: center;
+      display: none;
+      animation: fadeUp .4s ease both;
+    }
+
+    #result:not(:empty) {
+      display: block;
+    }
+
+    /* ---------- Скрытие раздела со словами на время теста ---------- */
+    .hidden-during-quiz {
+      display: none !important;
+    }
+
+    /* ---------- О проекте (страница) ---------- */
+    .about p {
+      color: var(--muted);
+      margin: 0 0 12px;
+    }
+
+    .about ul {
+      margin: 0 0 16px;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    .about ul li {
+      margin-bottom: 6px;
+    }
+
+    .about ul li::marker {
+      color: var(--green);
+    }
+
+    .about .contact-line {
+      margin: 0 0 8px;
+    }
+
+    .about .contact-line a {
+      color: var(--green);
+      text-decoration: none;
+      font-weight: 600;
+      border-bottom: 1px dashed rgba(76, 175, 80, .5);
+      transition: border-color .25s ease, color .25s ease;
+      word-break: break-all;
+    }
+
+    .about .contact-line a:hover {
+      color: var(--green-dark);
+      border-bottom-color: var(--green-dark);
+    }
+
+    /* Стили для QR-кода в контактах */
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .contact-item .qr-code {
+      max-width: 120px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 4px;
+      background: #fff;
+    }
+
+    /* ---------- Футер ---------- */
+    .site-footer {
+      background: #fafafa;
+      border-top: 1px solid var(--border);
+      padding: 32px 24px 24px;
+      margin-top: 20px;
+    }
+
+    .footer-inner {
+      max-width: 1024px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: center;
+    }
+
+    .footer-info p {
+      margin: 0 0 4px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .footer-info strong {
+      color: var(--accent);
+    }
+
+    .socials {
+      display: flex;
+      gap: 10px;
+    }
+
+    .socials a {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: #fff;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      text-decoration: none;
+      transition: background .25s ease, color .25s ease, transform .25s ease, border-color .25s ease;
+    }
+
+    .socials a svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+    }
+
+    .socials a:hover {
+      background: var(--green);
+      color: #fff;
+      border-color: var(--green);
+      transform: translateY(-2px);
+    }
+
+    /* фирменный цвет при наведении для отдельных соцсетей */
+    .socials a.tg:hover { background: #229ED9; border-color: #229ED9; }
+    .socials a.vk:hover { background: #0077FF; border-color: #0077FF; }
+    .socials a.gh:hover { background: #24292F; border-color: #24292F; }
+    .socials a.mail:hover { background: #EA4335; border-color: #EA4335; }
+
+    .footer-bottom {
+      max-width: 1024px;
+      margin: 20px auto 0;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* ---------- Анимации ---------- */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation: none !important;
+        transition: none !important;
+      }
+
+      html {
+        scroll-behavior: auto;
+      }
+    }
+
+    /* ---------- Адаптивность ---------- */
+    @media (max-width: 768px) {
+      .header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .main-nav {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+
+      main {
+        padding: 20px 16px 32px;
+      }
+
+      section {
+        padding: 18px;
+      }
+
+      .footer-inner {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .socials {
+        justify-content: center;
+      }
+
+      table.match td {
+        padding: 8px 6px;
+      }
+
+      table.match select {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        font-size: 15px;
+      }
+
+      .add-row {
+        flex-direction: column;
+      }
+
+      .add-row input,
+      .add-row button {
+        width: 100%;
+      }
+
+      .quiz-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .quiz-controls label {
+        justify-content: space-between;
+      }
+
+      .opt {
+        display: flex;
+        width: 100%;
+      }
+
+      .card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .delete {
+        align-self: flex-end;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Хедер -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="logo" href="#home" data-page="home">
+        <span class="logo-mark">К</span>
+        <span>WordCards</span>
+      </a>
+      <nav>
+        <ul class="main-nav">
+          <li><a href="#home" data-page="home" class="active">Главная</a></li>
+          <li><a href="#about" data-page="about">О проекте</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Основной контент -->
+  <main>
+
+    <!-- СТРАНИЦА: ГЛАВНАЯ -->
+    <div class="page active" id="page-home">
+      <h1>Карточки для слов</h1>
+      <p class="subtitle">Учите новые слова и проверяйте знания в удобном формате</p>
+
+      <section id="add">
+        <h2>Добавить слово</h2>
+        <div class="add-row">
+          <input type="text" id="wordInput" placeholder="Слово" size="15">
+          <input type="text" id="transInput" placeholder="Перевод" size="20">
+          <button onclick="addCard()">Добавить</button>
+        </div>
+        <div id="cardsList"></div>
+      </section>
+
+      <section id="quiz">
+        <h2>Проверка знаний</h2>
+        <div class="quiz-controls">
+          <label>Тип задания:
+            <select id="quizType">
+              <option value="choice">Выбор перевода</option>
+              <option value="input">Ввод перевода</option>
+              <option value="match">Сопоставление</option>
+            </select>
+          </label>
+          <label>Вопросов: <input type="number" id="quizCount" value="5" min="1"></label>
+          <button onclick="startQuiz()">Составить задание</button>
+        </div>
+        <div id="quizArea"></div>
+        <div id="result"></div>
+        <!-- Кнопка "Закончить тест" (скрыта по умолчанию) -->
+        <button id="finishQuizBtn" onclick="finishQuiz()" style="display:none;">Закончить тест</button>
+      </section>
+    </div>
+
+    <!-- СТРАНИЦА: О ПРОЕКТЕ -->
+    <div class="page" id="page-about">
+      <h1>О проекте</h1>
+      <p class="subtitle">Что такое WordCards и зачем он нужен</p>
+
+      <section class="about">
+        <h2>Описание</h2>
+        <p><strong>WordCards</strong> — это простой и удобный тренажёр для пополнения словарного запаса. Добавляйте свои слова и переводы, а затем проверяйте себя в одном из трёх режимов.</p>
+      </section>
+
+      <section class="about">
+        <h2>Возможности</h2>
+        <ul>
+          <li>Три типа заданий: выбор перевода, ввод перевода и сопоставление.</li>
+          <li>Слова сохраняются в браузере (localStorage) — ничего не теряется при перезагрузке.</li>
+          <li>Адаптивный интерфейс для компьютеров, планшетов и телефонов.</li>
+          <li>Лёгкая анимация появления блоков и аккуратные состояния наведения.</li>
+          <li>Проверка ответов с подсказкой правильного варианта.</li>
+        </ul>
+      </section>
+
+      <section class="about">
+        <h2>Контакты</h2>
+        <p class="contact-line">Почта: <a href="mailto:project.630.10@gmail.com">project.630.10@gmail.com</a></p>
+        <p class="contact-line">GitHub: <a href="https://github.com/project63010-crypto/Kworld.git" target="_blank" rel="noopener">github.com/project63010-crypto/Kworld</a></p>
+        
+        <!-- Добавленная ссылка и QR-код -->
+        <div class="contact-item">
+          <p class="contact-line" style="margin: 0;">Telegram-канал: <a href="https://t.me/KWorldCards" target="_blank" rel="noopener">t.me/KWorldCards</a></p>
+          <img class="qr-code" src="qr-telegram.jpg" alt="QR-код Telegram-канала KWorldCards" title="Отсканируйте, чтобы перейти в Telegram">
+        </div>
+        
+      </section>
+    </div>
+
+  </main>
+
+  <!-- Футер -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-info">
+        <p><strong>WordCards</strong> — тренажёр словарного запаса</p>
+        <p>Свяжитесь с нами: <a href="mailto:project.630.10@gmail.com"
+            style="color:var(--green);text-decoration:none;">project.630.10@gmail.com</a></p>
+      </div>
+      <div class="socials" aria-label="Социальные сети">
+        <!-- Telegram -->
+        <a class="tg" href="https://t.me/KWorldCards" target="_blank" rel="noopener" aria-label="Telegram" title="Telegram">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M21.94 4.3c.24-.98-.4-1.43-1.13-1.16L2.7 10.1c-1.1.4-1.08 1.03-.18 1.3l4.83 1.5 1.87 5.72c.23.66.55.82 1.1.42l2.62-1.9 4.86 3.58c.8.5 1.36.24 1.56-.74l2.58-15.68zM8.9 13.2l9.4-5.93c.44-.27.85-.13.52.17l-7.7 6.95-.3 3.6-1.92-4.79z"/>
+          </svg>
+        </a>
+        <!-- VK -->
+        <a class="vk" href="#" aria-label="VK" title="VK">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M13.16 18.28c-6.02 0-9.46-4.13-9.6-10.98h3.02c.1 5.03 2.32 7.16 4.08 7.6V7.3h2.85v4.34c1.74-.19 3.56-2.16 4.18-4.34h2.84a8.34 8.34 0 0 1-3.82 5.47 8.65 8.65 0 0 1 4.47 5.5h-3.13c-.6-1.94-2.26-3.44-3.9-3.66v3.66h-.99z"/>
+          </svg>
+        </a>
+        <!-- GitHub -->
+        <a class="gh" href="https://github.com/project63010-crypto/Kworld.git" target="_blank" rel="noopener" aria-label="GitHub" title="GitHub">
+          <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38
+              0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13
+              -.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66
+              .07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15
+              -.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27
+              .68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12
+              .51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48
+              0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+        </a>
+        <!-- Email -->
+        <a class="mail" href="mailto:project.630.10@gmail.com" aria-label="Email" title="Email">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">© 2026 WordCards. Все права защищены.</div>
+  </footer>
+
+  <script>
+    // ----- Хранилище слов (изначально пустое) -----
+    let words = [];
+
+    // Очищаем localStorage при загрузке, чтобы удалить старые сохранения
+    localStorage.removeItem('words');
+
+    function save() {localStorage.setItem('words', JSON.stringify(words));}
+    function esc(s) {const d = document.createElement('div'); d.textContent = s; return d.innerHTML;}
+
+    function addCard() {
+      const w = document.getElementById('wordInput').value.trim();
+      const t = document.getElementById('transInput').value.trim();
+      if (!w || !t) {alert('Заполните оба поля'); return;}
+      if (words.some(x => x.word.toLowerCase() === w.toLowerCase())) {alert('Такое слово уже есть'); return;}
+      words.push({word: w, trans: t});
+      save(); renderCards();
+      document.getElementById('wordInput').value = '';
+      document.getElementById('transInput').value = '';
+    }
+
+    function delCard(i) {words.splice(i, 1); save(); renderCards();}
+
+    function renderCards() {
+      const el = document.getElementById('cardsList');
+      if (!words.length) {
+        el.innerHTML = '<p style="color:#666;text-align:center;padding:10px 0;">Список пуст — добавьте слова.</p>';
+        return;
+      }
+      el.innerHTML = words.map((x, i) =>
+        `<div class="card"><span><b>${esc(x.word)}</b> — ${esc(x.trans)}</span>
+     <button class="delete" onclick="delCard(${i})">✕</button></div>`).join('');
+    }
+
+    // ----- Скрытие/показ списка слов на время теста -----
+    function hideWordList() {
+      document.getElementById('add').classList.add('hidden-during-quiz');
+      document.getElementById('finishQuizBtn').style.display = 'inline-block';
+    }
+
+    function showWordList() {
+      document.getElementById('add').classList.remove('hidden-during-quiz');
+      document.getElementById('finishQuizBtn').style.display = 'none';
+    }
+
+    // ----- Завершение теста -----
+    function finishQuiz() {
+      // Очищаем область вопросов и результат
+      document.getElementById('quizArea').innerHTML = '';
+      document.getElementById('result').textContent = '';
+      // Показываем список слов
+      showWordList();
+      // Прокручиваем к списку слов
+      document.getElementById('add').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ----- Генератор заданий -----
+    function shuffle(a) {
+      a = [...a];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function pickWords(n) {
+      const pool = shuffle(words);
+      return pool.slice(0, Math.min(n, pool.length));
+    }
+
+    function startQuiz() {
+      const type = document.getElementById('quizType').value;
+      const count = parseInt(document.getElementById('quizCount').value) || 5;
+      const area = document.getElementById('quizArea');
+      const res = document.getElementById('result');
+      res.textContent = '';
+
+      if (words.length < 2) {
+        area.innerHTML = '<p style="color:#666;text-align:center;padding:10px 0;">Добавьте хотя бы два слова, чтобы составить задание.</p>';
+        return;
+      }
+
+      // Прячем список слов и блок добавления, чтобы нельзя было подсмотреть
+      hideWordList();
+
+      if (type === 'choice') renderChoice(count, area);
+      else if (type === 'input') renderInput(count, area);
+      else renderMatch(area);
+    }
+
+    // 1. Выбор перевода
+    function renderChoice(count, area) {
+      const items = pickWords(count);
+      area.innerHTML = items.map((x, qi) => {
+        const others = shuffle(words.filter(w => w.word !== x.word)).slice(0, 3);
+        const opts = shuffle([x.trans, ...others.map(o => o.trans)]);
+        return `<div class="q"><b>${esc(x.word)}</b>` +
+          opts.map(o => `<label class="opt"><input type="radio" name="q${qi}" value="${esc(o)}"> ${esc(o)}</label>`).join('') +
+          `<span class="fb" data-w="${esc(x.trans)}"></span></div>`;
+      }).join('');
+      area.innerHTML += '<button onclick="checkChoice()">Проверить</button>';
+    }
+
+    function checkChoice() {
+      let score = 0;
+      document.querySelectorAll('.q').forEach((q, i) => {
+        const sel = q.querySelector('input:checked');
+        const fb = q.querySelector('.fb');
+        const right = fb.dataset.w;
+        if (sel && sel.value === right) {score++; fb.innerHTML = ' ✓'; fb.className = 'fb correct';}
+        else {fb.innerHTML = sel ? ` ✗ (верно: ${right})` : ` — верно: ${right}`; fb.className = 'fb wrong';}
+      });
+      showResult(score, document.querySelectorAll('.q').length);
+    }
+
+    // 2. Ввод перевода
+    function renderInput(count, area) {
+      const items = pickWords(count);
+      area.innerHTML = items.map((x, i) =>
+        `<div class="q"><b>${esc(x.word)}</b> — <input type="text" class="inp" data-w="${esc(x.trans.toLowerCase())}" size="20"> <span class="fb"></span></div>`).join('');
+      area.innerHTML += '<button onclick="checkInput()">Проверить</button>';
+    }
+
+    function checkInput() {
+      let score = 0;
+      document.querySelectorAll('.q').forEach(q => {
+        const inp = q.querySelector('.inp');
+        const fb = q.querySelector('.fb');
+        const val = inp.value.trim().toLowerCase();
+        if (val === inp.dataset.w) {score++; fb.textContent = ' ✓'; fb.className = 'fb correct';}
+        else {fb.innerHTML = ` ✗ (верно: ${inp.dataset.w})`; fb.className = 'fb wrong';}
+      });
+      showResult(score, document.querySelectorAll('.q').length);
+    }
+
+    // 3. Сопоставление
+    function renderMatch(area) {
+      const items = pickWords(6);
+      const shuffledTrans = shuffle(items.map(x => x.trans));
+      area.innerHTML = '<p style="color:#666;margin-top:0;">Соедините слова и переводы:</p><table class="match">' +
+        items.map((x, i) =>
+          `<tr><td><b>${esc(x.word)}</b></td><td>
+        <select class="matchSel" data-w="${esc(x.trans)}">
+          <option value="">— выберите —</option>
+          ${shuffledTrans.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('')}
+        </select> <span class="fb"></span></td></tr>`).join('') +
+        '</table><button onclick="checkMatch()">Проверить</button>';
+    }
+
+    function checkMatch() {
+      let score = 0;
+      const sels = document.querySelectorAll('.matchSel');
+      sels.forEach(s => {
+        const fb = s.parentElement.querySelector('.fb');
+        if (s.value === s.dataset.w) {score++; fb.textContent = ' ✓'; fb.className = 'fb correct';}
+        else {fb.innerHTML = ` ✗ (верно: ${s.dataset.w})`; fb.className = 'fb wrong';}
+      });
+      showResult(score, sels.length);
+    }
+
+    function showResult(score, total) {
+      document.getElementById('result').textContent =
+        `Результат: ${score} из ${total} (${Math.round(score / total * 100)}%)`;
+    }
+
+    // ----- Переключение страниц (вкладок) -----
+    function showPage(name) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.main-nav a').forEach(a => a.classList.remove('active'));
+
+      const page = document.getElementById('page-' + name);
+      if (page) page.classList.add('active');
+
+      const navLink = document.querySelector('.main-nav a[data-page="' + name + '"]');
+      if (navLink) navLink.classList.add('active');
+
+      // При уходе с главной страницы возвращаем список слов, чтобы он не оставался скрытым
+      if (name !== 'home') showWordList();
+
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    function initRouting() {
+      const handle = () => {
+        const hash = location.hash.replace('#', '') || 'home';
+        showPage(hash === 'about' ? 'about' : 'home');
+      };
+
+      document.querySelectorAll('a[data-page]').forEach(a => {
+        a.addEventListener('click', e => {
+          e.preventDefault();
+          const name = a.dataset.page;
+          history.pushState(null, '', name === 'home' ? '#home' : '#' + name);
+          showPage(name);
+        });
+      });
+
+      window.addEventListener('popstate', handle);
+      window.addEventListener('hashchange', handle);
+      handle();
+    }
+
+    // Инициализация
+    renderCards();
+    initRouting();
+  </script>
+</body>
+
+</html>
